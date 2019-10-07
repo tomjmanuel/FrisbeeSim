@@ -147,7 +147,7 @@ x0=[-9.03E-01 -6.33E-01 -9.13E-01 1.34E+01 -4.11E-01 1.12E-03 -7.11E-02 2.11E-01
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Enter values for tfinal and nsteps:
 tfinal = 1.46; % length of flight
-nsteps = 3; % number of time steps for data
+nsteps = 300; % number of time steps for data
 tspan=[0:tfinal/nsteps:tfinal];
 %options=[]
 options = odeset('AbsTol', 0.000001,'RelTol', 0.00000001,'OutputFcn','odeplot');
