@@ -138,7 +138,7 @@ vzo = -(speedo * sin(betao)); % velocity component in the nz direction
 % 1 meter above the ground, forward and right 0.001,
 % no roll angle, no velocity in the the y direction
 % and for positive alpha, disc is pitched up, with a neg. w component
-% the second set is the long flight f2302 estimated initial conditions
+% the second set is the long flight f2302 estimated initial conditions 
 % First set:
 %x0= [ 0.001 0.001 -1 vxo 0 vzo 0 thetao 0.001 0.001 gd 0 ]
 % Second set:
