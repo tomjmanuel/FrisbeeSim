@@ -38,7 +38,6 @@ m1=norm(eigM1(1));
 m2=norm(eigM1(2));
 m3=norm(eigM1(3));
 c1=T_c_N(1,:); % c1 expressed in N frame
-88 
 c2=T_c_N(2,:); % c2 expressed in N frame
 c3=T_c_N(3,:); % c3 expressed in N frame
 %% calculate aerodynamic forces and moments
@@ -78,9 +77,9 @@ CM = interp1(CM_data(:,1), CM_data(:,2), alpha,'spline');
                 % 1x22, 1x6, 22x6
 CRr = interp2(CRr_rad,CRr_AdvR,CRr_data',alpha,AdvR,'spline');
 Mvp = Adp*d* (CRr* + CRp*omegavp)*uvp; % Roll moment, expressed in N
-end % if CoefUsed==2 % using potts coefficients
+end 
+
 lift = CL*Adp;
-89 
 drag = CD*Adp;
 ulift = -cross(uvel,ulat); % ulift always has - d3 component
 udrag = -uvel;

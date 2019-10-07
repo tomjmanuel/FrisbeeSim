@@ -12,7 +12,8 @@
 % 1) specify value for "CoefUsed"
 % 2) specify which values for the damping coefficients, use long flight or short
 % flight values.
-% 3) specify Simulation set of initial conditions: thetao, speedo, betao, and po
+% 3) specify Simulation set of initial conditions: thetao, speedo, betao,
+% and po (I think po is actually gd here (spin rate)
 % 4) specify which "x0" command to use
 % 5) specify values for "tfinal" and "nsteps"
 %%
@@ -29,21 +30,21 @@ global CMq CRp CNr
 % to use for CLo CLa CDo CDa CMo CMa CRr.
 % CoefUsed = 1 ... choose for using estimated short flights lift, drag, moment coefficients
 % CoefUsed = 2 ... choose for using Potts and Crowther (2002) lift, drag, moment coefficients
-CoefUsed=2
+CoefUsed=2;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % define non-aerodynamic parameters
-m = 0.175 % Kg
-g = 9.7935 % m/s^2
-A = 0.057 % m^2
-d = 2*sqrt(A/pi) % diameter
-rho = 1.23 % Kg/m^3
-Ia = 0.002352 % moment of inertia about the spinning axis
-Id = 0.001219 % moment of inertia about the planar axis'
-81 
+m = 0.175; % Kg
+g = 9.7935; % m/s^2
+A = 0.057; % m^2
+d = 2*sqrt(A/pi); % diameter
+rho = 1.23; % Kg/m^3
+Ia = 0.002352; % moment of inertia about the spinning axis
+Id = 0.001219; % moment of inertia about the planar axis'
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % THE THREE ESTIMATED COEFFICIENTS
 %CMq= -0.005, CRp =-0.0055, CNr = 0.0000071 % short (three) flights
-CMq= -1.44E-02 , CRp =-1.25E-02, CNr = -3.41E-05 % long flight f2302
+CMq= -1.44E-02; CRp =-1.25E-02; CNr = -3.41E-05; % long flight f2302
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % THE seven COEFFICIENTS estimated from three flights
 CLo= 0.3331;
@@ -117,17 +118,17 @@ CRr_data = reshape(CRr_data,[22 6]);
 % thetao = 0.211; speedo = 13.5; betao = 0.15; gd=54
 % Common release conditions:
 % thetao = 0.192; speedo = 14; betao = 0.105; gd=50
+
 % Define Simulation set initial conditions, enter your choosen values here:
-thetao = .192 % initial pitch angle
+thetao = .192; % initial pitch angle
 speedo = 13.7; % magnitude, m/sec
-betao = .105 % flight path angle in radians between velocity vector and horizontal
+betao = .105; % flight path angle in radians between velocity vector and horizontal
 gd=50; % initial spin
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-alphao = thetao - betao % inital alpha
-vxo = speedo * cos(betao) % velocity component in the nx direction
-vzo = -(speedo * sin(betao)) % velocity component in the nz direction
+alphao = thetao - betao; % inital alpha
+vxo = speedo * cos(betao); % velocity component in the nx direction
+vzo = -(speedo * sin(betao)); % velocity component in the nz direction
 % (note: nz is positive down)
-83 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % x0= vector of initial conditions
 % x0= [ x y z vx vy vz phi theta phidot thetadot gd gamma]
@@ -142,17 +143,19 @@ vzo = -(speedo * sin(betao)) % velocity component in the nz direction
 %x0= [ 0.001 0.001 -1 vxo 0 vzo 0 thetao 0.001 0.001 gd 0 ]
 % Second set:
 x0=[-9.03E-01 -6.33E-01 -9.13E-01 1.34E+01 -4.11E-01 1.12E-03 -7.11E-02 2.11E-01 ...
--1.49E+01 -1.48E+00 5.43E+01 5.03E+00]
+-1.49E+01 -1.48E+00 5.43E+01 5.03E+00];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Enter values for tfinal and nsteps:
 tfinal = 1.46; % length of flight
-nsteps = 292; % number of time steps for data
+nsteps = 3; % number of time steps for data
 tspan=[0:tfinal/nsteps:tfinal];
 %options=[]
 options = odeset('AbsTol', 0.000001,'RelTol', 0.00000001,'OutputFcn','odeplot');
 %% Calls the ODE and integrate the frisbee equations of motions in the
 % subroutine, discfltEOM.m
 [t,x]=ode45(@discfltEOM,tspan,x0,options,CoefUsed);
+
+%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Remaining commands are associated with creating plots of the output. A "v"
 % is put at the end of the variable to differentiate it from the variable
@@ -173,54 +176,55 @@ pv = x(:,11);
 velv = [vxv vyv vzv]; %expressed in N
 omegaD_N_inCv = [fdv.*ctv thdv fdv.*stv + pv]; % expressed in c1,c2,c3
 for i=1:size(t)
-84 
-i=i;
-vmagv(i) = norm(velv(i,:)); % a nx1 row vector
-% T_c_N=[ct st*sf -st*cf;
-% 0 cf sf;
-% st -ct*sf ct*cf]
-T_c_N=[ ctv(i) stv(i)*sfv(i) -stv(i)*cfv(i);
-0 cfv(i) sfv(i);
-stv(i) -ctv(i)*sfv(i) ctv(i)*cfv(i)];
-c3v(i,:)=T_c_N(3,:); % c3 expressed in N frame
-vc3v(i,:)=dot(velv(i,:),c3v(i,:)); % velocity (scalar) in the c3 direction
-vpv(i,:)= [velv(i,:)-vc3v(i,:).*c3v(i,:)]; % subtract c3 velocity component to get the
-% velocity vector projected onto the plane
-% of the disc, expressed in N
-vpmagv(i) = norm(vpv(i,:));
-uvpv(i,:)=vpv(i,:)/vpmagv(i);
-ulatv(i,:)=cross(c3v(i,:)',uvpv(i,:)')'; % unit vector perp. to v and c3, points right
-alphav(i) = atan(vc3v(i,:)/norm(vpv(i,:)));
-omegaD_N_inNv(i,:) = (T_c_N'*omegaD_N_inCv(i,:)')'; % expressed in n1,n2,n3
-omegavpv(i,:) = dot(omegaD_N_inNv(i,:),uvpv(i,:)); %omega about vp axis
-omegalatv(i,:) = dot(omegaD_N_inNv(i,:),ulatv(i,:));
-omegaspinv(i,:)= dot(omegaD_N_inNv(i,:),c3v(i,:));
+
+    vmagv(i) = norm(velv(i,:)); % a nx1 row vector
+    % T_c_N=[ct st*sf -st*cf;
+    % 0 cf sf;
+    % st -ct*sf ct*cf]
+    T_c_N=[ ctv(i) stv(i)*sfv(i) -stv(i)*cfv(i);
+    0 cfv(i) sfv(i);
+    stv(i) -ctv(i)*sfv(i) ctv(i)*cfv(i)];
+    c3v(i,:)=T_c_N(3,:); % c3 expressed in N frame
+    vc3v(i,:)=dot(velv(i,:),c3v(i,:)); % velocity (scalar) in the c3 direction
+    vpv(i,:)= [velv(i,:)-vc3v(i,:).*c3v(i,:)]; % subtract c3 velocity component to get the
+    % velocity vector projected onto the plane
+    % of the disc, expressed in N
+    vpmagv(i) = norm(vpv(i,:));
+    uvpv(i,:)=vpv(i,:)/vpmagv(i);
+    ulatv(i,:)=cross(c3v(i,:)',uvpv(i,:)')'; % unit vector perp. to v and c3, points right
+    alphav(i) = atan(vc3v(i,:)/norm(vpv(i,:)));
+    omegaD_N_inNv(i,:) = (T_c_N'*omegaD_N_inCv(i,:)')'; % expressed in n1,n2,n3
+    omegavpv(i,:) = dot(omegaD_N_inNv(i,:),uvpv(i,:)); %omega about vp axis
+    omegalatv(i,:) = dot(omegaD_N_inNv(i,:),ulatv(i,:));
+    omegaspinv(i,:)= dot(omegaD_N_inNv(i,:),c3v(i,:));
 end %for i=1:size(t)
+
 Adpv = A*rho*vmagv.*vmagv/2;
 wuns=ones(size(alphav));
 AdvRv=d*omegaspinv/2./vmagv';
 if CoefUsed==1 % using short flights coefficients
-alphaeq= -CLo/CLa % this is angle of attack at zero lift
-CLv = CLo*ones(size(alphav)) + CLa*alphav;
-CDv = CDo*ones(size(alphav)) + CDa*(alphav-alphaeq*ones(size(alphav))).*...
-(alphav-alphaeq*ones(size(alphav)));
-CMv = CMo*wuns + CMa*alphav;
-CRrv=CRr;
-%CRrv= CRr*d*omegaspinv/2./vmagv';
-%CRrv= CRr*sqrt(d/g)*omegaspinv;
-% above line produces NaN, so leave it in Mvp equation
-%Mvp = Adp*d* (CRrv*d*omegaspin/2/vmag + CRp*omegavp)*uvp; % expressed in N
-Mvpv = Adpv*d* (sqrt(d/g)*CRrv*omegaspinv + CRp*omegavpv)*uvpv; % Roll moment
+    alphaeq= -CLo/CLa % this is angle of attack at zero lift
+    CLv = CLo*ones(size(alphav)) + CLa*alphav;
+    CDv = CDo*ones(size(alphav)) + CDa*(alphav-alphaeq*ones(size(alphav))).*...
+    (alphav-alphaeq*ones(size(alphav)));
+    CMv = CMo*wuns + CMa*alphav;
+    CRrv=CRr;
+    %CRrv= CRr*d*omegaspinv/2./vmagv';
+    %CRrv= CRr*sqrt(d/g)*omegaspinv;
+    % above line produces NaN, so leave it in Mvp equation
+    %Mvp = Adp*d* (CRrv*d*omegaspin/2/vmag + CRp*omegavp)*uvp; % expressed in N
+    Mvpv = Adpv*d* (sqrt(d/g)*CRrv*omegaspinv + CRp*omegavpv)*uvpv; % Roll moment
 end % if CoefUsed==1 % using short flights coefficients
+
 if CoefUsed==2 % using Potts and Crowther (2002) coefficients
-% interpolation of Potts and Crowther (2002) data
-CLv = interp1(CL_data(:,1), CL_data(:,2), alphav,'spline');
-CDv = interp1(CD_data(:,1), CD_data(:,2), alphav,'spline');
-85 
-CMv = interp1(CM_data(:,1), CM_data(:,2), alphav,'spline');
-CRrv = interp2(CRr_rad,CRr_AdvR,CRr_data',alphav,AdvRv','spline');
-Mvpv = Adpv'*d.* (CRrv' + CRp*omegavpv); % Roll moment
+    % interpolation of Potts and Crowther (2002) data
+    CLv = interp1(CL_data(:,1), CL_data(:,2), alphav,'spline');
+    CDv = interp1(CD_data(:,1), CD_data(:,2), alphav,'spline');
+    CMv = interp1(CM_data(:,1), CM_data(:,2), alphav,'spline');
+    CRrv = interp2(CRr_rad,CRr_AdvR,CRr_data',alphav,AdvRv','spline');
+    Mvpv = Adpv'*d.* (CRrv' + CRp*omegavpv); % Roll moment
 end % CoefUsed==2 % using potts coefficients
+
 liftv=CLv.*Adpv;
 dragv=CDv.*Adpv;
 Mlatv = Adpv'*d.* (CMv' + CMq*omegalatv); % Pitch Moment
@@ -261,7 +265,6 @@ set(gca,'FontSize',11);
 ylabel('position (m)')
 legend('x','y','z');
 %axis tight
-86 
 %Ylim([-2 16])
 grid
 subplot(2,2,2),plot(t,x(:,4),'k-',t,x(:,5),'k--',t,x(:,6),'k:','LineWidth',2)
