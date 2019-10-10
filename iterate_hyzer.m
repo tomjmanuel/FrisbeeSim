@@ -30,14 +30,14 @@ Id = 0.001219; % moment of inertia about the planar axis'
 CMq= -1.44E-02; CRp =-1.25E-02; CNr = -3.41E-05; % long flight f2302
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % THE seven COEFFICIENTS estimated from three flights
-CLo= 0.3331;
-CLa= 1.9124;
-CDo= 0.1769;
-CDa= 0.685;
-CMo= -0.0821;
-CMa= 0.4338;
-CRr= 0.00171; % for nondimensionalization = sqrt(d/g), magnitude of CRr changes
-% with nondimensionalization
+% CLo= 0.3331;
+% CLa= 1.9124;
+% CDo= 0.1769;
+% CDa= 0.685;
+% CMo= -0.0821;
+% CMa= 0.4338;
+% CRr= 0.00171; % for nondimensionalization = sqrt(d/g), magnitude of CRr changes
+% % with nondimensionalization
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % THE seven COEFFICIENTS from Potts and Crowther (2002)
@@ -136,11 +136,12 @@ nsteps = 300;
 Paths = zeros(nR,2,nsteps+1); %[releaseangle x y]
 
 for i=1:nR
-    x0=[-9.03E-01 -6.33E-01 -9.13E-01 1.34E+01 -4.11E-01 1.12E-03 -7.11E-02 2.11E-01 -1.49E+01 -1.48E+00 5.43E+01 5.03E+00];
+    x0=[-9.03E-01 -6.33E-01  -9.13E-01 1.34E+01 -4.11E-01 1.12E-03 -7.11E-02 2.11E-01 -1.49E+01 -1.48E+00 5.43E+01 5.03E+00];
     x0(1:3)=0;
 
     %change "Roll angle"
     x0(7) = roll_deg(i)*(2*pi/360);
+    %x0(12) = roll_deg(i);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Enter values for tfinal and nsteps:
     tfinal = 1.46; % length of flight

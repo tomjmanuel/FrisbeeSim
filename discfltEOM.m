@@ -7,9 +7,9 @@ function xdot=discfltEOM(t,x,CoefUsed)
 % Equations of Motion for the frisbee
 % The inertial frame, xyz = forward, right and down
 global m g Ia Id A d rho
-global CLo CLa CDo CDa CMo CMa CRr
+% global CLo CLa CDo CDa CMo CMa CRr
 global CL_data CD_data CM_data CRr_rad CRr_AdvR CRr_data
-global CMq CRp CNr
+global CMq CRp CNr CRr
 % x = [ x y z vx vy vz f th fd thd gd gamma]
 % 1 2 3 4 5 6 7 8 9 10 11 12
 %% give states normal names
@@ -59,16 +59,16 @@ omegavp = dot(omegaD_N_inN,uvp);
 omegalat = dot(omegaD_N_inN,ulat);
 omegaspin = dot(omegaD_N_inN,c3); % omegaspin = p1=fd*st+gd
 AdvR= d*omegaspin/2/vmag ; % advanced ration
-if CoefUsed==1 % using short flights coefficients
-CL = CLo + CLa*alpha;
-alphaeq = -CLo/CLa; % this is angle of attack at zero lift
-CD = CDo + CDa*(alpha-alphaeq)*(alpha-alphaeq);
-CM=CMo + CMa*alpha;
-%CRr= CRr*d*omegaspinv/2./vmagv';
-%CRr= CRr*sqrt(d/g)*omegaspinv; % this line produces NaN, so leave it in Mvp equation
-%Mvp = Adp*d* (CRr*d*omegaspin/2/vmag + CRp*omegavp)*uvp; % expressed in N
-Mvp = Adp*d* (sqrt(d/g)*CRr*omegaspin + CRp*omegavp)*uvp; % expressed in N
-end % if CoefUsed==1 % using short flights coefficients
+% if CoefUsed==1 % using short flights coefficients
+% CL = CLo + CLa*alpha;
+% alphaeq = -CLo/CLa; % this is angle of attack at zero lift
+% CD = CDo + CDa*(alpha-alphaeq)*(alpha-alphaeq);
+% CM=CMo + CMa*alpha;
+% %CRr= CRr*d*omegaspinv/2./vmagv';
+% %CRr= CRr*sqrt(d/g)*omegaspinv; % this line produces NaN, so leave it in Mvp equation
+% %Mvp = Adp*d* (CRr*d*omegaspin/2/vmag + CRp*omegavp)*uvp; % expressed in N
+% Mvp = Adp*d* (sqrt(d/g)*CRr*omegaspin + CRp*omegavp)*uvp; % expressed in N
+% end % if CoefUsed==1 % using short flights coefficients
 if CoefUsed==2 % using potts coefficients
 %% interpolation of Potts and Crowther (2002) data
 CL = interp1(CL_data(:,1), CL_data(:,2), alpha,'spline');
