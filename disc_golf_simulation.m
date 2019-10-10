@@ -37,6 +37,15 @@ CD_data=[ -0.1745 0.1500 -10
 0.4363 0.7500 25
 0.5236 0.9200 30];
 
+% CL
+liftScale = 1.3;
+aa = [2.8361  0.2051]; %linear fit to original data
+aa(1) = aa(1)*liftScale;
+CL_data = zeros([10 2]);
+CL_data(:,1) = -.3:.1:.6;
+CL_data(:,2) = polyval(aa,CL_data(:,1));
+
+
 % CM =[ rad CM deg]
 CM_data=[-0.174532925 -0.0380 -10
 -0.087266463 -0.0220 -5
@@ -60,6 +69,10 @@ CRr_data = [-0.0172 -0.0192 -0.018 -0.0192 -0.018 -0.0172 -0.0172 -0.0168 -0.018
     -0.0012 -0.0012 -0.0004 -0.0008 -0.0008 -0.0008 0.0004 0.0004 0.0004 0.0008 0.0004 0.0008 -0.0004 0 0 0.0004 0 0 0.0004 -0.002 -0.0012 -0.003];
 CRr_data = reshape(CRr_data,[22 6]);   
 
+stability = 0; % positive values are understable
+CRr_data = CRr_data + stability;
+CRr = CRr + stability;
+
 % CRr_deg=[-5 -4 -3 -2 -1 0 1 2 3 4
 % 5 6 7 8 9 10 11 12 13 14 15 30 ]
 CRr_rad = [-0.0873 -0.0698 -0.0524 -0.0349 -0.0175 0.0000 0.0175 0.0349 0.0524 0.0698 0.0873 0.1047 0.1222 0.1396 0.1571 0.1745 0.1920 0.2094 0.2269 0.2443 0.2618 0.5236];
@@ -69,24 +82,28 @@ CRr_AdvR= [2 1.04 0.69 0.35 0.17 0];
 % x0= vector of initial conditions
 % x0= [ x y z vx vy vz phi theta phidot thetadot gd gamma]
 x0=[-9.03E-01 -6.33E-01  -9.13E-01 1.34E+01 -4.11E-01 1.12E-03 -7.11E-02 2.11E-01 -1.49E+01 -1.48E+00 5.43E+01 5.03E+00];
-x0(1:2)=0; %set origin to zero
-% %x0(3) = -.9; % set height (negative z is positive... assholes)
-% %x0(5)=0; % set y velocity to zero
-x0(6) = .15; % set z velocity
-% %x0(4) = x0(4)*9; %scale throw speed
-% %noseangle = 1; %degrees
-% %x0(8) = noseangle.*pi/180; %pitch angle (nose up ness) in radians
- fps = 60; %throw speed fps
- x0(4) = fps/3.28; %intermediate throw speed
- x0(11) = x0(11)*1; % scale spin speed
-% x0(7:10)=0; %throw flat with no off axis torque
+x0(1:2)=0;              % set origin to zero
+x0(3) = -.9;            % set height (negative z is positive... assholes)
+x0(5)=-.1;              % set y velocity 
+x0(6) = .15;            % set z velocity
+% %x0(4) = x0(4)*9;     % scale throw speed
+noseangle = 12;         % nose angle (degrees) (12 is good)
+x0(8) = noseangle.*pi/180; 
+hyzerangle = -6;        % hyzer angle (degrees) (-4 is good) (negative is anhyzer)
+x0(7) = hyzerangle*pi/180;
+fps = 55;               % throw speed fps (55 is good)
+x0(4) = fps/3.28;       % intermediate throw speed
+rps = 9.4;              % revs per second (9 is good)
+x0(11) = rps*2*pi;      % set spin speed
+%x0(7:10)=0;            %throw flat with no off axis torque
+
 
 CD_data(:,2) = CD_data(:,2).*.3;       
 %scale drag data to match a disc golf disc (lower than lids)
 %drag is parabolic centered at zero
 
-offset = linspace(1,3,3); %change in CL slope
-%offset = [.3];
+offset = linspace(1,3,2); %change in CL slope
+offset = [.3];
 nR = length(offset);
 nsteps = 300;
 Paths = zeros(nR,3,nsteps+1); %[releaseangle x y]
@@ -94,26 +111,9 @@ ts = zeros([nR 1]);
 
 for i=1:nR
 i
-    %change CL
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     CL_data=[ -0.1745 -0.2250 -10;
-%                 -0.05236 0 -3;
-%                 0 0.150 0;
-%                 0.08727 0.4500 5;
-%                 0.17453 0.7250 10;
-%                 0.26180 0.9750 15;
-%                 0.34907 1.2000 20;
-%                 0.43633 1.4500 25;
-%                 0.52360 1.6750 30];
-%     CL_data(:,2) = CL_data(:,2) + offset(i);
-    aa = [2.8361  0.2051]; %linear fit to original data
-    aa(1) = aa(1)*offset(i);
-    CL_data = zeros([10 2]);
-    CL_data(:,1) = -.3:.1:.6;
-    CL_data(:,2) = polyval(aa,CL_data(:,1));
     
     % Enter values for tfinal and nsteps:
-    tfinal = 18; % length of flight
+    tfinal = 12; % length of flight
     tspan=[0:tfinal/nsteps:tfinal];
     %options=[]
     options = odeset('AbsTol', 0.000001,'RelTol', 0.00000001,'Events',@hitZero);
